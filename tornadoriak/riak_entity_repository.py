@@ -8,7 +8,6 @@
     Copyright (c) 2012-2013 apitrary
 
 """
-import logging
 import riak
 from tornadoriak.errors import RiakObjectNotFoundException
 from tornadoriak.errors import RiakObjectIdNotProvidedException
@@ -24,8 +23,6 @@ class RiakEntityRepository(object):
             Simple init method ...
         """
         super(RiakEntityRepository, self).__init__()
-
-        # Set the Riak client, bucket name and bucket
         self.riak_client = riak_client
         self.bucket_name = bucket_name
         self.bucket = bucket
@@ -35,13 +32,11 @@ class RiakEntityRepository(object):
             Retrieve a single object with given object ID from Riak
         """
         if object_id is None:
-            logging.error('No object ID provided! Object ID required.')
             raise RiakObjectIdNotProvidedException()
 
         single_object = self.bucket.get(object_id).get_data()
         if single_object is None:
-            logging.error('Object with given id={} not found!'.format(object_id))
-            raise RiakObjectNotFoundException()
+            raise RiakObjectNotFoundException(message='Object with given id={} not found!'.format(object_id))
         else:
             single_object = self.bucket.get(object_id).get_data()
 

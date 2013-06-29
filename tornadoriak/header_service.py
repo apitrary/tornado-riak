@@ -20,8 +20,6 @@ class HeaderService(object):
             Simple init method ...
         """
         super(HeaderService, self).__init__()
-
-        # Set the HTTP Headers
         self.headers = headers
 
     def has_valid_headers(self):

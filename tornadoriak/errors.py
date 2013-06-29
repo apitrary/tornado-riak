@@ -8,9 +8,10 @@
     Copyright (c) 2012-2013 apitrary
 
 """
+import logging
 
 
-class GenapiBaseException(Exception):
+class TornadoRiakBaseException(Exception):
     """
         Thrown when a received message is of unknown type
     """
@@ -19,8 +20,9 @@ class GenapiBaseException(Exception):
         """
             Log the message
         """
-        super(GenapiBaseException, self).__init__(*args, **kwargs)
+        super(TornadoRiakBaseException, self).__init__(*args, **kwargs)
         self.message = message
+        logging.error(message)
 
     def __str__(self):
         """
@@ -29,7 +31,7 @@ class GenapiBaseException(Exception):
         return self.message
 
 
-class NoDictionaryException(GenapiBaseException):
+class NoDictionaryException(TornadoRiakBaseException):
     """
         Thrown when a received message is of unknown type
     """
@@ -41,7 +43,7 @@ class NoDictionaryException(GenapiBaseException):
         super(NoDictionaryException, self).__init__(error_message, *args, **kwargs)
 
 
-class RiakObjectNotFoundException(GenapiBaseException):
+class RiakObjectNotFoundException(TornadoRiakBaseException):
     """
         Thrown when a received message is of unknown type
     """
@@ -53,7 +55,7 @@ class RiakObjectNotFoundException(GenapiBaseException):
         super(RiakObjectNotFoundException, self).__init__(error_message, *args, **kwargs)
 
 
-class RiakObjectIdNotProvidedException(GenapiBaseException):
+class RiakObjectIdNotProvidedException(TornadoRiakBaseException):
     """
         Thrown when an object ID was required but not provided
     """
