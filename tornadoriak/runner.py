@@ -18,6 +18,7 @@ from tornadoriak.handler_helpers import get_bucket_name
 from tornado.options import define
 from tornado.log import enable_pretty_logging
 from tornado.options import options
+from tornadoriak.pre_hooks import pre_start_hook
 
 
 ##############################################################################
@@ -186,4 +187,25 @@ def start_server(parsed_opts, entity_handler, cookie_secret=None):
 
     assert parsed_opts.port
     _start_tornado_server(parsed_opts.port, routes_configuration, cookie_secret)
+
+
+def run_server(entity_handler, cookie_secret):
+    """
+        Run all steps and config checks, then start the server
+    """
+    try:
+        tornado.options.parse_command_line()
+    except tornado.options.Error, e:
+        sys.exit('ERROR: {}'.format(e))
+
+    # From now on, we have the "parsed_opts" object.
+    # Ok, go & check the required options.
+    if options_ok(options):
+        pre_start_hook(parsed_opts=options)
+        try:
+            start_server(parsed_opts=options, entity_handler=entity_handler, cookie_secret=cookie_secret)
+        except KeyboardInterrupt:
+            logging.info('Process stopped by user interaction.')
+        finally:
+            tornado.ioloop.IOLoop.instance().stop()
 
