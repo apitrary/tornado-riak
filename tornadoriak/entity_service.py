@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 
-    pygenapi
+    tornado-riak
 
     by hgschmidt
 
-    Copyright (c) 2012 apitrary
+    Copyright (c) 2012-2013 apitrary
 
 """
 import logging

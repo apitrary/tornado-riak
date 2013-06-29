@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 
-    GenAPI
+    tornado-riak
 
     Response object template
 
-    Copyright (c) 2012 apitrary
+    Copyright (c) 2012-2013 apitrary
 
 """
 import json
