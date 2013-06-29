@@ -33,7 +33,6 @@ def store_init_object(opts, entity_name):
         transport_class=riak.RiakHttpTransport
     )
 
-    # setup the bucket
     bucket_name = get_bucket_name(opts.api_id, entity_name)
     bucket = client.bucket(bucket_name).set_r(opts.riak_rq).set_w(opts.riak_wq)
 
@@ -41,7 +40,6 @@ def store_init_object(opts, entity_name):
     logging.debug('Initializing bucket: "{}" with object: "{}"'.format(bucket_name, init_object))
 
     try:
-        # now, write the init object to the bucket
         bucket.new('_init', init_object).store()
     except riak.RiakError, e:
         logging.error('Error on communicating to Riak database! {}'.format(e))
@@ -73,7 +71,6 @@ def precommit_hook_exists(riak_bucket_url):
         Check basho's documentation for more information:
         http://wiki.basho.com/Riak-Search---Indexing-and-Querying-Riak-KV-Data.html#Setting-up-Indexing
     """
-    # We're assuming, as default, that the hook has not been installed
     hook_exists = False
 
     # contact Riak and fetch the props
@@ -83,7 +80,6 @@ def precommit_hook_exists(riak_bucket_url):
         headers={'content-type': 'application/json', 'accept': 'application/json'}
     )
 
-    # convert the response to json
     json_object = json.loads(resp.body)
     logging.debug(json_object)
     if json_object['props']:
@@ -132,10 +128,7 @@ def database_base_http_url(db_host, db_port):
 
         Careful: This is using HTTP, not HTTPS as protocol.
     """
-    # We are using HTTP, not HTTPS!
     riak_protocol = 'http'
-
-    # Construct the whole URL and return it back
     return '{protocol}://{node}:{port}'.format(protocol=riak_protocol, node=db_host, port=db_port)
 
 
@@ -152,16 +145,11 @@ def setup_indexing(opts, entity_name):
         This will setup the PRECOMMIT hook for indexing (SOLR) in Riak
         for a given entity.
     """
-    # Construct the bucket name
     bucket_name = get_bucket_name(opts.api_id, entity_name)
-
-    # and now, the complete Riak bucket URL
     riak_bucket_url = database_bucket_url(db_host=opts.riak_host, db_port=opts.riak_http_port, bucket_name=bucket_name)
 
-    # Ask if the hook is already setup
+    # Ask if the hook is already setup, otherwise set it up
     hook = precommit_hook_exists(riak_bucket_url=riak_bucket_url)
-
-    # If it's not, then setup the hook
     if not hook:
         logging.debug("Precommit hook not established! Trying to set it up!")
         send_precommit_hook(riak_bucket_url=riak_bucket_url)
@@ -197,6 +185,4 @@ def pre_start_hook(parsed_opts):
     """
         The PRE-Start hook! Before starting the server, actions can be run.
     """
-
-    # Initialize all buckets
     initialize_buckets(opts=parsed_opts)

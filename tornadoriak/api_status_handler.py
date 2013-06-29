@@ -19,7 +19,7 @@ from tornadoriak.base_handlers import BaseHandler
 class ApiStatusHandler(BaseHandler):
     """
         GET '/'
-        Shows status information about this about this deployed API
+        Shows status information about this deployed API
     """
 
     def __init__(self, application, request, api_version, api_id, schema, api_status_details=None, **kwargs):
@@ -40,7 +40,6 @@ class ApiStatusHandler(BaseHandler):
         """
             Provides a basic hash with information for this deployed API.
         """
-        # create status
         riak_ping_url = '{}/ping'.format(self.riak_url)
         response = yield tornado.gen.Task(self.async_http_client.fetch, riak_ping_url)
         riak_db_status = response.body

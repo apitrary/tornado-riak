@@ -43,7 +43,6 @@ class BaseHandler(tornado.web.RequestHandler):
             transport_class=riak.RiakHttpTransport
         )
 
-        #noinspection PyTypeChecker
         self.riak_pb_client = riak.RiakClient(
             host=options.riak_host,
             port=options.riak_pb_port,
@@ -81,12 +80,7 @@ class BaseHandler(tornado.web.RequestHandler):
             logging.error('payload is type: {}'.format(type(payload)))
             raise NoDictionaryException()
 
-        response = Response(
-            status_code=status_code,
-            status_message=status_message,
-            result=payload
-        ).get_data()
-
+        response = Response(status_code=status_code, status_message=status_message, result=payload).get_data()
         self.set_status(status_code)
         self.set_header("Content-Type", "application/json; charset=UTF-8")
         self.write(response)
