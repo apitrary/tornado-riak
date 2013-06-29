@@ -25,7 +25,7 @@ from tornadoriak.handler_helpers import illegal_attributes_exist
 from tornadoriak.handler_helpers import filter_out_timestamps
 
 
-class EntityHandler(BaseHandler):
+class BaseEntityHandler(BaseHandler):
     """
         This handler is responsible for handling all CRUD operations and, additionally,
         search & receive_all calls.
@@ -49,7 +49,7 @@ class EntityHandler(BaseHandler):
         """
             Sets up the Riak client and the bucket
         """
-        super(EntityHandler, self).__init__(application, request, **kwargs)
+        super(BaseEntityHandler, self).__init__(application, request, **kwargs)
         self.api_key = None
         if api_key is not None:
             self.api_key = api_key
