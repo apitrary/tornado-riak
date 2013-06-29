@@ -12,14 +12,134 @@ import tornado.web
 import tornado.httpserver
 import tornado.httputil
 import tornado.httpclient
+from tornadoriak.api_status_handler import ApiStatusHandler
 from tornadoriak.config import TORNADO_APP_SETTINGS
+from tornadoriak.handler_helpers import get_bucket_name
+from tornado.options import define
+from tornado.log import enable_pretty_logging
+from tornado.options import options
 
 
-def routes(parsed_opts):
+##############################################################################
+#
+# GENERAL CONFIGURATION + SHELL PARAMETER DEFINITIONS
+#
+##############################################################################
+
+# Required shell parameters
+define("port", help="run on the given port", type=int)
+define("riak_host", help="Riak database host", type=str)
+define("api_version", help="API Version (/vXXX)", type=int)
+define("api_id", help="Unique API ID", type=str)
+define("api_key", help="Authorization Key", type=str)
+define("entity", help="Entity name", type=str, multiple=True)
+
+# Shell parameters with default values
+define("config", help="genapi service config file", type=str)
+define("env", default='dev', help='start server in {dev|live} mode', type=str)
+define("riak_pb_port", default=8087, help="Riak Protocol Buffer port", type=int)
+define("riak_http_port", default=8098, help="Riak HTTP port", type=int)
+define("riak_rq", default=2, help="Riak READ QUORUM", type=int)
+define("riak_wq", default=2, help="Riak WRITE QUORUM", type=int)
+
+# API-specific settings
+API_VERSION = options.api_version
+API_ID = options.api_id
+PORT = options.port
+
+# Enable pretty logging
+enable_pretty_logging()
+
+##############################################################################
+#
+# FUNCTIONS
+#
+##############################################################################
+
+
+def routes(parsed_opts, entity_handler):
     """
         Setup the URL routes with regex
     """
-    pass
+    assert parsed_opts.api_version
+    assert parsed_opts.api_id
+    assert parsed_opts.api_key
+    assert parsed_opts.entity
+    assert parsed_opts.riak_rq
+    assert parsed_opts.riak_wq
+    assert parsed_opts.env
+
+    all_routes = [
+        (r"/", ApiStatusHandler, dict(
+            api_version=parsed_opts.api_version,
+            api_id=parsed_opts.api_id,
+            schema=parsed_opts.entity,
+            api_key=parsed_opts.api_key
+        ))
+    ]
+
+    # Now, go through the list of entities and add routes for each entity.
+    for entity in parsed_opts.entity:
+        bucket_name = get_bucket_name(parsed_opts.api_id, entity)
+
+        options_dict = dict(
+            bucket_name=bucket_name,
+            riak_rq=parsed_opts.riak_rq,
+            riak_wq=parsed_opts.riak_wq,
+            api_id=parsed_opts.api_id,
+            api_version=parsed_opts.api_version,
+            env=parsed_opts.env,
+            entity_name=entity,
+            api_key=parsed_opts.api_key
+        )
+
+        # Setup route for retrieving all objects
+        all_routes.append((r"/{}".format(entity), entity_handler, options_dict))
+        all_routes.append((r"/{}.json".format(entity), entity_handler, options_dict))
+
+        # Setup route for getting single objects with given id
+        all_routes.append((r"/{}/([0-9a-zA-Z]+)".format(entity), entity_handler, options_dict))
+        all_routes.append((r"/{}/([0-9a-zA-Z]+).json".format(entity), entity_handler, options_dict))
+
+    return all_routes
+
+
+def options_ok(parsed_opts):
+    """
+        Check if all options passed on as parameters are ok!
+    """
+    ok = True
+
+    if parsed_opts.port is None:
+        ok = False
+        logging.error('Missing attribute: --port')
+
+    if parsed_opts.riak_host is None:
+        ok = False
+        logging.error('Missing attribute: --riak_host')
+
+    if parsed_opts.api_id is None:
+        ok = False
+        logging.error('Missing attribute: --api_id')
+
+    if parsed_opts.api_version is None:
+        ok = False
+        logging.error('Missing attribute: --api_version')
+
+    if parsed_opts.api_key is None:
+        ok = False
+        logging.error('Missing attribute: --api_key')
+
+    if parsed_opts.entity is None or len(parsed_opts.entity) == 0:
+        ok = False
+        logging.error('Missing attribute: --entity')
+
+    if not ok:
+        print("[ERROR] Errors found!")
+        print("")
+        print("Use --help to see the help page.")
+
+    return ok
 
 
 def _start_tornado_server(port, routes_configuration, cookie_secret=None):
@@ -57,11 +177,11 @@ def show_all_settings(opts, routes_configuration):
         logging.info('NEW ROUTE: {} -- Handled by: "{}"'.format(repr(route[0]), route[1]))
 
 
-def start_server(parsed_opts, cookie_secret=None):
+def start_server(parsed_opts, entity_handler, cookie_secret=None):
     """
         Start the general server
     """
-    routes_configuration = routes(parsed_opts)
+    routes_configuration = routes(parsed_opts=parsed_opts, entity_handler=entity_handler)
     show_all_settings(parsed_opts, routes_configuration)
 
     assert parsed_opts.port
