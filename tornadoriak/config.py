@@ -9,7 +9,7 @@
 
 APP_DETAILS = {
     'name': 'Tornado-Riak',
-    'version': '0.1.1',
+    'version': '0.1.2',
     'company': 'apitrary',
     'support': 'http://apitrary.com/support',
     'contact': 'support@apitrary.com',
