@@ -37,8 +37,6 @@ class RiakEntityRepository(object):
         single_object = self.bucket.get(object_id).get_data()
         if single_object is None:
             raise RiakObjectNotFoundException(message='Object with given id={} not found!'.format(object_id))
-        else:
-            single_object = self.bucket.get(object_id).get_data()
 
         return single_object
 

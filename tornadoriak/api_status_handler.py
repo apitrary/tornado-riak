@@ -12,6 +12,8 @@ import tornado.escape
 from tornado import gen
 import tornado.httpserver
 import tornado.httputil
+from tornado import httpclient
+from tornado.options import options
 from tornadoriak.config import APP_DETAILS
 from tornadoriak.base_handlers import BaseHandler
 
@@ -27,6 +29,11 @@ class ApiStatusHandler(BaseHandler):
             Set up the basic Api Status handler responding on '/'
         """
         super(ApiStatusHandler, self).__init__(application, request, **kwargs)
+        self.async_http_client = tornado.httpclient.AsyncHTTPClient()
+
+        self.riak_protocol = 'http'
+        self.riak_url = '{protocol}://{node}:{port}'.format(protocol=self.riak_protocol, node=options.riak_host,
+                                                            port=options.riak_http_port)
         self.api_version = api_version
         self.api_id = api_id
         self.schema = schema

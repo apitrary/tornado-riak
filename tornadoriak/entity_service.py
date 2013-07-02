@@ -24,13 +24,10 @@ class EntityService(HeaderService):
             Additionally, add the RiakService.
         """
         super(EntityService, self).__init__(headers)
-
-        # Set the Riak client, bucket name and bucket
         self.riak_client = riak_client
         self.bucket_name = bucket_name
         self.bucket = bucket
 
-        # Establish the repository to Riak
         self.repository = RiakEntityRepository(riak_client=riak_client, bucket=bucket, bucket_name=bucket_name)
 
     def get(self, object_id):

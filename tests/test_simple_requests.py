@@ -12,6 +12,7 @@ import tornado
 from tornado import httpclient
 from tornado.httpclient import HTTPError
 
+
 class TestSimpleEntity(object):
     def __init__(self):
         super(TestSimpleEntity, self).__init__()

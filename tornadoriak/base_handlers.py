@@ -11,7 +11,6 @@ import riak
 import tornado.ioloop
 import tornado.web
 import tornado.escape
-from tornado import httpclient
 import tornado.httpserver
 import tornado.httputil
 from tornado.options import options
@@ -29,28 +28,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
 
-        self.async_http_client = tornado.httpclient.AsyncHTTPClient()
-        self.riak_protocol = 'http'
-        self.riak_url = '{protocol}://{node}:{port}'.format(
-            protocol=self.riak_protocol,
-            node=options.riak_host,
-            port=options.riak_http_port
-        )
-
-        self.riak_http_client = riak.RiakClient(
-            host=options.riak_host,
-            port=options.riak_http_port,
-            transport_class=riak.RiakHttpTransport
-        )
-
-        self.riak_pb_client = riak.RiakClient(
-            host=options.riak_host,
-            port=options.riak_pb_port,
-            transport_class=riak.RiakPbcTransport
-        )
-
-        # This is a shortcut to quickly switch between the Riak HTTP and PBC client.
-        self.client = self.riak_pb_client
+        # self.client = riak.RiakClient(host=options.riak_host, port=options.riak_http_port,
+        #     transport_class=riak.RiakHttpTransport)
+        self.client = riak.RiakClient(host=options.riak_host, port=options.riak_pb_port,
+                                      transport_class=riak.RiakPbcTransport)
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", '*')
