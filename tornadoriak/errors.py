@@ -33,7 +33,7 @@ class TornadoRiakBaseException(Exception):
 
 class NoDictionaryException(TornadoRiakBaseException):
     """
-        Thrown when a received message is of unknown type
+        Thrown when a given object is not a dictionary
     """
 
     def __init__(self, message=None, *args, **kwargs):
@@ -45,7 +45,7 @@ class NoDictionaryException(TornadoRiakBaseException):
 
 class RiakObjectNotFoundException(TornadoRiakBaseException):
     """
-        Thrown when a received message is of unknown type
+        Thrown when requested object has not been found in Riak database
     """
 
     def __init__(self, message=None, *args, **kwargs):
