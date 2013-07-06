@@ -47,16 +47,14 @@ class RiakEntityRepository(object):
 
             Used in GET (EntityHandlers).
         """
-        # return [[v.key, data]];
         query = riak.RiakMapReduce(self.riak_client).add(self.bucket_name)
-        query.map('''function(v) {
-                        var data = JSON.parse(v.values[0].data);
-                        if(v.key != '_init') {
-                            return [{'_data': data, '_id': v.key}];
-                        }
-                        return [];
-                    }''')
-        return query.run()
+        return query.map(
+            '''function(v) {
+                   var data = JSON.parse(v.values[0].data);
+                   if(v.key != '_init') { return [{'_data': data, '_id': v.key}]; }
+                   return [];
+               }'''
+        ).run()
 
     def add(self, object_id, data):
         """
