@@ -9,9 +9,9 @@
 import tornado.ioloop
 import tornado.web
 import tornado.escape
-from tornado import gen
 import tornado.httpserver
 import tornado.httputil
+from tornado import gen
 from tornado import httpclient
 from tornado.options import options
 from tornadoriak.config import APP_DETAILS

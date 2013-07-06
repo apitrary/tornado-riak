@@ -9,9 +9,10 @@
 
 """
 import logging
-from tornadoriak.errors import RiakObjectIdNotProvidedException, RiakObjectNotFoundException
-from tornadoriak.riak_entity_repository import RiakEntityRepository
 from tornadoriak.header_service import HeaderService
+from tornadoriak.errors import RiakObjectNotFoundException
+from tornadoriak.errors import RiakObjectIdNotProvidedException
+from tornadoriak.riak_entity_repository import RiakEntityRepository
 
 
 class EntityService(HeaderService):

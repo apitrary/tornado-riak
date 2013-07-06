@@ -13,9 +13,9 @@
     Copyright (c) 2012-2013 apitrary
 
 """
+import uuid
 import json
 import logging
-import uuid
 import tornado
 from tornado import escape
 from tornadoriak.entity_service import EntityService
