@@ -28,10 +28,12 @@ class BaseHandler(tornado.web.RequestHandler):
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
 
-        # self.client = riak.RiakClient(host=options.riak_host, port=options.riak_http_port,
-        #     transport_class=riak.RiakHttpTransport)
-        self.client = riak.RiakClient(host=options.riak_host, port=options.riak_pb_port,
-                                      transport_class=riak.RiakPbcTransport)
+        self.riak_http_client = riak.RiakClient(host=options.riak_host, port=options.riak_http_port,
+                                                transport_class=riak.RiakHttpTransport)
+        self.riak_pb_client = riak.RiakClient(host=options.riak_host, port=options.riak_pb_port,
+                                              transport_class=riak.RiakPbcTransport)
+        # Use Protobuf as default
+        self.client = self.riak_pb_client
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", '*')
