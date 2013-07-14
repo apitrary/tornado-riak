@@ -9,6 +9,8 @@
 import tornado
 from tornado import httpclient
 from tornadoriak.pre_hooks import curl_http_client
+from tornadoriak.pre_hooks import database_bucket_url
+from tornadoriak.pre_hooks import database_base_http_url
 
 
 def test_store_init_object():
@@ -32,11 +34,15 @@ def test_send_precommit_hook():
 
 
 def test_database_base_http_url():
-    pass
+    assert database_base_http_url(db_host='localhost', db_port=8098) == 'http://localhost:8098'
 
 
 def test_database_bucket_url():
-    pass
+    assert database_bucket_url(
+        db_host='localhost',
+        db_port=8098,
+        bucket_name='some_bucket'
+    ) == 'http://localhost:8098/riak/some_bucket'
 
 
 def test_setup_indexing():
