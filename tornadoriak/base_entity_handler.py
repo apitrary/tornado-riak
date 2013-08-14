@@ -45,11 +45,14 @@ class BaseEntityHandler(BaseHandler):
     # Set of supported methods for this resource
     SUPPORTED_METHODS = ("GET", "POST", "PUT", "DELETE", "OPTIONS")
 
-    def __init__(self, application, request, bucket_name, riak_rq, riak_wq, **kwargs):
+    def __init__(self, application, request, bucket_name, riak_rq, riak_wq, api_key=None, **kwargs):
         """
             Sets up the Riak client and the bucket
         """
         super(BaseEntityHandler, self).__init__(application, request, **kwargs)
+        self.api_key = None
+        if api_key is not None:
+            self.api_key = api_key
 
         # The constructed bucket name + setup the bucket
         logging.debug('Entity bucket = "{}"'.format(bucket_name))
@@ -210,10 +213,17 @@ class BaseEntityHandler(BaseHandler):
         # All failed?
         self.write_error(404, message='Could not delete object with id: {}'.format(object_id))
 
-    def require_headers(self, require_content_type=False, require_accept=True):
+    def require_headers(self, require_api_key=False, require_content_type=False, require_accept=True):
         """
             Helper for checking the required header variables
         """
+        # Authorize request by enforcing API key (X-API-Key)
+        require_api_key = (self.api_key is not None)
+        if require_api_key:
+            if self.entity_service.get_key_from_header('X-Api-Key') != self.api_key:
+                self.write_error(status_code=401, message='Invalid API Key.')
+                return 1
+
         # Enforce application/json as Accept
         if require_accept:
             if not self.entity_service.has_valid_accept_type():
